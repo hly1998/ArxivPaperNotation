@@ -1,6 +1,11 @@
-# 📚 arXiv 个性化论文通知系统
+# ArXiv 个性化论文通知系统
 
-自动爬取 arXiv 每日论文，根据你设置的关键词筛选最相关的论文，使用大模型生成中文总结，并通过邮件发送给你。
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Enabled-2088FF.svg)](https://github.com/features/actions)
+[![arXiv](https://img.shields.io/badge/arXiv-Daily%20Update-B31B1B.svg)](https://arxiv.org/)
+
+> 🤖 自动爬取 arXiv 每日论文，根据你设置的关键词筛选最相关的论文，使用大模型生成中文总结，并通过邮件发送给你。
 
 ## ✨ 功能特点
 
@@ -37,9 +42,9 @@
 | `EMAIL_SMTP_SERVER` | SMTP 服务器地址 | `smtp.qq.com` |
 | `EMAIL_SENDER` | 发送方邮箱 | `your-email@qq.com` |
 | `EMAIL_PASSWORD` | 邮箱密码/授权码 | `xxxxxxxx`（QQ邮箱用授权码） |
-| `EMAIL_RECIPIENTS` | 收件人列表 | `a@example.com, b@example.com` 或 `["a@example.com"]` |
-| `ARXIV_CATEGORIES` | arXiv 分类 | `cs.CV, cs.CL, cs.AI` 或 `["cs.CV", "cs.CL"]` |
-| `MATCHING_KEYWORDS` | 关键词（带权重用JSON） | `rag, agent, LLM` 或 `{"rag": 2.0, "agent": 1.0}` |
+| `EMAIL_RECIPIENTS` | 收件人列表 | `["a@example.com"]` |
+| `ARXIV_CATEGORIES` | arXiv 分类 | `["cs.CV", "cs.CL"]` |
+| `MATCHING_KEYWORDS` | 关键词（数值为关键词权重） | `{"rag": 2.0, "agent": 1.0}` |
 
 ##### 可选的 Variables（点击 "Variables" 标签页 → "New repository variable"）
 
@@ -67,7 +72,7 @@
 
 - 运行成功后，你会收到论文日报邮件
 - 可以在 Actions 运行记录中下载 Artifacts 查看日报和日志
-- 默认每天 UTC 8:00（北京时间 16:00）自动运行
+- 每 2 小时自动检测 arXiv 更新，今日已发送则跳过
 
 ---
 
@@ -237,19 +242,9 @@ python main.py --keywords "LLM,RAG,agent" --top-k 5
 - SMTP 服务器: `smtp.163.com`
 - 端口: `587`
 
-### Gmail
-
-1. 开启 [两步验证](https://myaccount.google.com/security)
-2. 生成 [应用专用密码](https://myaccount.google.com/apppasswords)
-3. 选择 "邮件" 和 "其他"，生成密码
-
-配置：
-- SMTP 服务器: `smtp.gmail.com`
-- 端口: `587`
-
 ---
 
-## 📊 支持的 arXiv 分类
+## 📊 arXiv 分类示例
 
 | 分类 | 说明 |
 |-----|------|
@@ -318,7 +313,6 @@ ArxivPaperNotation/
 - 确认 SMTP 设置正确
 - QQ/163 邮箱需要使用**授权码**，不是登录密码
 - 检查收件人地址格式是否正确
-- Gmail 需要使用应用专用密码
 
 ### Q: GitHub Actions 运行失败？
 
@@ -326,22 +320,18 @@ ArxivPaperNotation/
 - JSON 格式的值需要用双引号，如 `["cs.CV", "cs.CL"]`
 - 查看 Actions 运行日志定位具体错误
 
-### Q: 如何修改运行时间？
+### Q: 如何修改检测频率？
 
-编辑 `.github/workflows/daily_arxiv.yml` 中的 cron 表达式：
+默认每 2 小时检测一次 arXiv 更新。编辑 `.github/workflows/daily_arxiv.yml` 中的 cron 表达式：
 
 ```yaml
 schedule:
-  - cron: '0 8 * * *'  # UTC 时间，北京时间需要 -8 小时
+  - cron: '0 */2 * * *'  # 每 2 小时运行一次
 ```
 
-常用时间对照：
-- `0 0 * * *` = UTC 00:00 = 北京时间 08:00
-- `0 8 * * *` = UTC 08:00 = 北京时间 16:00
-- `0 14 * * *` = UTC 14:00 = 北京时间 22:00
+其他频率示例：
+- `0 */4 * * *` = 每 4 小时
+- `0 */6 * * *` = 每 6 小时
+- `0 8 * * *` = 每天固定 UTC 8:00
 
 ---
-
-## 📄 License
-
-MIT License

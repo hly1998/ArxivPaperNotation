@@ -70,12 +70,16 @@ class ArxivNotifier:
             os.makedirs(os.path.dirname(self.last_email_file), exist_ok=True)
             with open(self.last_email_file, 'w') as f:
                 f.write(self.date)
+            print(f"✅ 已保存发送日期: {self.date} -> {self.last_email_file}")
         except Exception as e:
             print(f"⚠️ 无法保存邮件发送日期: {e}")
     
     def check_already_sent_today(self) -> bool:
         """检查今天是否已经发送过邮件"""
         last_date = self._get_last_email_date()
+        print(f"📁 状态文件路径: {self.last_email_file}")
+        print(f"📅 上次发送日期: {last_date or '无记录'}")
+        print(f"📅 今天日期: {self.date}")
         return last_date == self.date
     
     def step1_crawl(self, force: bool = False) -> bool:

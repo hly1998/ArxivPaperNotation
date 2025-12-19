@@ -59,7 +59,7 @@ class Config:
     categories: List[str] = field(default_factory=lambda: ["cs.CV", "cs.CL"])
     
     # 数据目录
-    base_data_dir: str = "../data"
+    base_data_dir: str = "./data"
     
     # PDF下载配置（现在默认禁用）
     download_pdf: bool = False
@@ -68,7 +68,7 @@ class Config:
     concurrent_downloads: int = 4
     
     # 日志配置
-    log_dir: str = "../logs"
+    log_dir: str = "./logs"
     log_level: str = "INFO"
     enable_log_rotation: bool = True
     log_max_bytes: int = 10 * 1024 * 1024  # 10MB
