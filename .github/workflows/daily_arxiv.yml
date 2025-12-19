@@ -1,0 +1,102 @@
+name: Daily arXiv Paper Notification
+
+on:
+  # 每天 UTC 时间 8:00 运行（北京时间 16:00）
+  # arXiv 通常在美东时间 20:00 (UTC 01:00) 更新
+  schedule:
+    - cron: '0 8 * * *'
+  
+  # 允许手动触发
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '指定日期 (YYYY-MM-DD)，留空则使用今天'
+        required: false
+        default: ''
+      skip_crawl:
+        description: '跳过爬取步骤（使用已有数据）'
+        required: false
+        default: 'false'
+        type: boolean
+      force_crawl:
+        description: '强制爬取（忽略日期检查）'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run arXiv notifier
+        env:
+          # ===== arXiv 配置 =====
+          ARXIV_CATEGORIES: ${{ secrets.ARXIV_CATEGORIES }}
+          
+          # ===== 关键词匹配配置 =====
+          MATCHING_KEYWORDS: ${{ secrets.MATCHING_KEYWORDS }}
+          MATCHING_THRESHOLD: ${{ vars.MATCHING_THRESHOLD }}
+          MATCHING_TOP_K: ${{ vars.MATCHING_TOP_K }}
+          
+          # ===== LLM 配置 =====
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_BATCH_SIZE: ${{ vars.LLM_BATCH_SIZE }}
+          
+          # ===== 邮件配置 =====
+          EMAIL_SMTP_SERVER: ${{ secrets.EMAIL_SMTP_SERVER }}
+          EMAIL_SMTP_PORT: ${{ vars.EMAIL_SMTP_PORT }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
+        run: |
+          # 构建命令参数
+          ARGS=""
+          
+          # 检查是否指定了日期
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            ARGS="$ARGS --date ${{ github.event.inputs.date }}"
+          fi
+          
+          # 检查是否跳过爬取
+          if [ "${{ github.event.inputs.skip_crawl }}" = "true" ]; then
+            ARGS="$ARGS --skip-crawl"
+          fi
+          
+          # 检查是否强制爬取
+          if [ "${{ github.event.inputs.force_crawl }}" = "true" ]; then
+            ARGS="$ARGS --force"
+          fi
+          
+          echo "Running: python main.py $ARGS"
+          python main.py $ARGS
+      
+      - name: Upload digest as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper-digest-${{ github.run_number }}
+          path: |
+            data/digests/*.md
+            logs/*.log
+          retention-days: 30
+          if-no-files-found: ignore

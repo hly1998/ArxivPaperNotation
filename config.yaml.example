@@ -1,0 +1,90 @@
+# =============================================================================
+# arXiv个性化论文通知系统配置文件示例
+# 复制此文件为 config.yaml 并填入你的配置
+# =============================================================================
+
+# arXiv论文分类配置
+arxiv:
+  categories:  # 要爬取的arXiv分类，参考: https://arxiv.org/category_taxonomy
+    - cs.CV     # 计算机视觉
+    - cs.CL     # 计算与语言
+    - cs.AI     # 人工智能
+    - cs.LG     # 机器学习
+    # - cs.IR   # 信息检索
+    # - cs.NE   # 神经与进化计算
+
+# 数据存储配置
+data:
+  base_dir: "./data"  # 数据存储根目录
+
+# PDF下载配置（默认禁用）
+pdf:
+  download: false       # 是否下载PDF
+  timeout: 60           # 下载超时时间（秒）
+  max_size_mb: 100      # 最大文件大小（MB）
+  concurrent_downloads: 4
+
+# 日志配置
+logging:
+  dir: "./logs"         # 日志目录
+  level: "INFO"         # 日志级别: DEBUG, INFO, WARNING, ERROR
+  rotation: true        # 是否启用日志轮转
+  max_bytes: 10485760   # 单个日志文件最大大小（10MB）
+  backup_count: 5       # 保留的日志备份数量
+
+# =============================================================================
+# 关键词匹配配置 - 使用BM25算法，支持关键词权重
+# =============================================================================
+matching:
+  # 关键词配置（支持两种格式）：
+  # 格式1 - 带权重字典（推荐）: {"关键词": 权重}，权重越高越重要
+  # 格式2 - 简单列表: ["关键词1", "关键词2"]（权重默认为1.0）
+  # 格式3 - 混合: ["关键词1", {"关键词2": 2.0}]
+  keywords:
+    "large language model": 2.0   # 高权重 - 非常感兴趣
+    "LLM": 2.0
+    "transformer": 1.5            # 中等权重
+    "attention mechanism": 1.0    # 普通权重
+    "GPT": 1.5
+    "BERT": 1.0
+    "diffusion": 1.0
+    "multimodal": 1.5
+    "vision language": 1.5
+    "RAG": 2.0
+    "agent": 1.5
+    # 添加你感兴趣的关键词和权重...
+  threshold: 0.5        # BM25得分阈值，只返回得分 >= threshold 的论文
+
+# =============================================================================
+# LLM配置 - 用于生成论文总结
+# =============================================================================
+llm:
+  model_name: "deepseek-chat"                    # 模型名称
+  base_url: "https://api.deepseek.com"           # API基础URL
+  # api_key: ""  # 建议通过环境变量 LLM_API_KEY 设置
+  
+  # 其他支持的模型配置示例：
+  # OpenAI:
+  #   model_name: "gpt-4o-mini"
+  #   base_url: "https://api.openai.com/v1"
+
+# =============================================================================
+# 邮件配置 - 发送论文摘要邮件
+# =============================================================================
+email:
+  smtp_server: "smtp.qq.com"   # SMTP服务器地址
+                               # QQ邮箱: smtp.qq.com
+                               # 163邮箱: smtp.163.com
+                               # Gmail: smtp.gmail.com
+                               # Outlook: smtp.office365.com
+  
+  smtp_port: 587               # SMTP端口 (587: STARTTLS, 465: SSL)
+  
+  sender: "your-email@qq.com"  # 发送方邮箱地址
+  # password: ""  # 建议通过环境变量 EMAIL_PASSWORD 设置
+                  # QQ邮箱需要使用授权码，不是登录密码
+  
+  recipients:                  # 收件人列表
+    - "recipient1@example.com"
+    - "recipient2@example.com"
+

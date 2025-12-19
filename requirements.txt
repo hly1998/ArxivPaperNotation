@@ -1,0 +1,23 @@
+# arXiv个性化论文通知系统依赖
+
+# 爬虫框架
+scrapy>=2.11.0
+
+# arXiv API客户端
+arxiv>=2.1.0
+
+# HTTP请求
+requests>=2.31.0
+
+# 配置文件解析
+pyyaml>=6.0.1
+
+# LLM API客户端 (OpenAI兼容接口)
+openai>=1.12.0
+
+# Markdown转HTML
+markdown>=3.5.0
+
+# 其他依赖
+Twisted>=23.10.0
+
