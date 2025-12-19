@@ -37,9 +37,9 @@
 | `EMAIL_SMTP_SERVER` | SMTP 服务器地址 | `smtp.qq.com` |
 | `EMAIL_SENDER` | 发送方邮箱 | `your-email@qq.com` |
 | `EMAIL_PASSWORD` | 邮箱密码/授权码 | `xxxxxxxx`（QQ邮箱用授权码） |
-| `EMAIL_RECIPIENTS` | 收件人列表（JSON格式） | `["a@example.com", "b@example.com"]` |
-| `ARXIV_CATEGORIES` | arXiv 分类（JSON格式） | `["cs.CV", "cs.CL", "cs.AI"]` |
-| `MATCHING_KEYWORDS` | 关键词及权重（JSON格式） | `{"rag": 2.0, "agent": 1.5, "LLM": 1.0}` |
+| `EMAIL_RECIPIENTS` | 收件人列表 | `a@example.com, b@example.com` 或 `["a@example.com"]` |
+| `ARXIV_CATEGORIES` | arXiv 分类 | `cs.CV, cs.CL, cs.AI` 或 `["cs.CV", "cs.CL"]` |
+| `MATCHING_KEYWORDS` | 关键词（带权重用JSON） | `rag, agent, LLM` 或 `{"rag": 2.0, "agent": 1.0}` |
 
 ##### 可选的 Variables（点击 "Variables" 标签页 → "New repository variable"）
 

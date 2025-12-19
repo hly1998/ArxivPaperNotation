@@ -50,6 +50,33 @@ class ArxivNotifier:
             log_file=log_file,
             level=self.config.log_level
         )
+        
+        # 邮件发送日期记录文件
+        self.last_email_file = os.path.join(self.config.base_data_dir, ".last_email_date")
+    
+    def _get_last_email_date(self) -> str:
+        """获取上次发送邮件的日期"""
+        if os.path.exists(self.last_email_file):
+            try:
+                with open(self.last_email_file, 'r') as f:
+                    return f.read().strip()
+            except Exception:
+                return ""
+        return ""
+    
+    def _save_email_date(self):
+        """保存当前邮件发送日期"""
+        try:
+            os.makedirs(os.path.dirname(self.last_email_file), exist_ok=True)
+            with open(self.last_email_file, 'w') as f:
+                f.write(self.date)
+        except Exception as e:
+            print(f"⚠️ 无法保存邮件发送日期: {e}")
+    
+    def check_already_sent_today(self) -> bool:
+        """检查今天是否已经发送过邮件"""
+        last_date = self._get_last_email_date()
+        return last_date == self.date
     
     def step1_crawl(self, force: bool = False) -> bool:
         """
@@ -224,6 +251,8 @@ class ArxivNotifier:
             
             if success:
                 self.logger.info(f"邮件发送成功，收件人: {self.config.email_recipients}")
+                # 记录发送日期，避免重复发送
+                self._save_email_date()
             else:
                 self._save_digest_locally(digest)
             
@@ -247,18 +276,26 @@ class ArxivNotifier:
         print(f"📄 摘要已保存到: {output_file}")
         self.logger.info(f"摘要保存到本地: {output_file}")
     
-    def run(self, skip_crawl: bool = False, force_crawl: bool = False) -> bool:
+    def run(self, skip_crawl: bool = False, force_crawl: bool = False, force_send: bool = False) -> bool:
         """
         运行完整流程
         
         Args:
             skip_crawl: 是否跳过爬取步骤（使用已有数据）
             force_crawl: 是否强制爬取（忽略日期检查）
+            force_send: 是否强制发送（忽略已发送检查）
         """
         print("\n" + "=" * 60)
         print("🚀 arXiv个性化论文通知系统")
         print("=" * 60)
         print(f"📅 日期: {self.date}")
+        
+        # 检查今天是否已发送过邮件
+        if not force_send and self.check_already_sent_today():
+            print(f"\n✅ 今日({self.date})邮件已发送，跳过重复运行")
+            print("   如需强制运行，请使用 --force-send 参数")
+            return True
+        
         print(f"📂 分类: {', '.join(self.config.categories)}")
         # 显示关键词
         kw = self.config.keywords
@@ -348,6 +385,11 @@ def main():
         type=int,
         help="最大论文数量（在阈值过滤后再限制数量）"
     )
+    parser.add_argument(
+        "--force-send",
+        action="store_true",
+        help="强制发送邮件（今日已发送过时可用）"
+    )
     
     args = parser.parse_args()
     
@@ -365,7 +407,11 @@ def main():
         if args.top_k is not None:
             notifier.config.top_k = args.top_k
         
-        success = notifier.run(skip_crawl=args.skip_crawl, force_crawl=args.force)
+        success = notifier.run(
+            skip_crawl=args.skip_crawl, 
+            force_crawl=args.force,
+            force_send=args.force_send
+        )
         sys.exit(0 if success else 1)
         
     except KeyboardInterrupt:

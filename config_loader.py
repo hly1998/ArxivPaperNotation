@@ -25,17 +25,31 @@ from typing import List, Optional, Union, Dict
 
 
 def _parse_json_env(env_name: str, default=None):
-    """解析JSON格式的环境变量"""
-    value = os.environ.get(env_name, '')
+    """
+    解析环境变量，支持多种格式：
+    - JSON格式: '["a", "b"]' 或 '{"a": 1.0, "b": 2.0}'
+    - 逗号分隔: 'a, b, c'
+    - 单个值: 'a'
+    """
+    value = os.environ.get(env_name, '').strip()
     if not value:
         return default
+    
+    # 尝试 JSON 解析
     try:
         return json.loads(value)
     except json.JSONDecodeError:
-        # 如果不是JSON，尝试作为逗号分隔的列表
-        if ',' in value:
-            return [item.strip() for item in value.split(',')]
-        return default
+        pass
+    
+    # 尝试逗号分隔的列表
+    if ',' in value:
+        return [item.strip() for item in value.split(',') if item.strip()]
+    
+    # 单个值作为列表返回
+    if default is not None and isinstance(default, list):
+        return [value]
+    
+    return value if value else default
 
 
 @dataclass
@@ -117,15 +131,15 @@ def get_config(config_path: Optional[str] = None) -> Config:
     if config_path is None:
         config_path = os.path.join(os.path.dirname(__file__), "config.yaml")
     
-    # 如果配置文件不存在，返回默认配置
-    if not os.path.exists(config_path):
-        return Config()
-    
-    # 加载YAML配置
-    yaml_config = load_config_from_yaml(config_path)
-    
-    # 获取项目根目录（配置文件所在目录）
-    project_root = os.path.dirname(os.path.abspath(config_path))
+    # 加载YAML配置（如果存在）
+    if os.path.exists(config_path):
+        yaml_config = load_config_from_yaml(config_path)
+        # 获取项目根目录（配置文件所在目录）
+        project_root = os.path.dirname(os.path.abspath(config_path))
+    else:
+        yaml_config = {}  # 配置文件不存在时使用空配置，但继续处理环境变量
+        # 使用当前工作目录作为项目根目录
+        project_root = os.getcwd()
     
     # 构建配置对象
     config = Config()

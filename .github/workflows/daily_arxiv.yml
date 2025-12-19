@@ -1,10 +1,10 @@
 name: Daily arXiv Paper Notification
 
 on:
-  # 每天 UTC 时间 8:00 运行（北京时间 16:00）
-  # arXiv 通常在美东时间 20:00 (UTC 01:00) 更新
+  # 每2小时运行一次，检查是否有新论文
+  # 程序会自动跳过今天已发送过邮件的情况
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 */2 * * *'
   
   # 允许手动触发
   workflow_dispatch:
@@ -20,6 +20,11 @@ on:
         type: boolean
       force_crawl:
         description: '强制爬取（忽略日期检查）'
+        required: false
+        default: 'false'
+        type: boolean
+      force_send:
+        description: '强制发送邮件（今日已发送过时可用）'
         required: false
         default: 'false'
         type: boolean
@@ -85,6 +90,11 @@ jobs:
           # 检查是否强制爬取
           if [ "${{ github.event.inputs.force_crawl }}" = "true" ]; then
             ARGS="$ARGS --force"
+          fi
+          
+          # 检查是否强制发送
+          if [ "${{ github.event.inputs.force_send }}" = "true" ]; then
+            ARGS="$ARGS --force-send"
           fi
           
           echo "Running: python main.py $ARGS"
