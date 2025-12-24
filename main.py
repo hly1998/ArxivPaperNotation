@@ -250,7 +250,8 @@ class ArxivNotifier:
                 password=self.config.email_password,
                 recipients=self.config.email_recipients,
                 digest_content=digest,
-                date=self.date
+                date=self.date,
+                use_ssl=self.config.email_use_ssl
             )
             
             if success:

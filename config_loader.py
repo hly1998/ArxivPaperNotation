@@ -93,6 +93,7 @@ class Config:
     email_sender: str = ""
     email_password: str = ""
     email_recipients: List[str] = field(default_factory=list)
+    email_use_ssl: bool = False
     
     def ensure_directories(self):
         """确保必要目录存在"""
@@ -273,6 +274,15 @@ def get_config(config_path: Optional[str] = None) -> Config:
         config.email_recipients = env_recipients
     else:
         config.email_recipients = email_config.get('recipients', [])
+    
+    # 是否使用SSL
+    env_use_ssl = os.environ.get('EMAIL_USE_SSL', '').lower()
+    if env_use_ssl in ('true', '1', 'yes'):
+        config.email_use_ssl = True
+    elif env_use_ssl in ('false', '0', 'no'):
+        config.email_use_ssl = False
+    else:
+        config.email_use_ssl = email_config.get('use_ssl', False)
     
     return config
 

@@ -5,18 +5,17 @@
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Enabled-2088FF.svg)](https://github.com/features/actions)
 [![arXiv](https://img.shields.io/badge/arXiv-Daily%20Update-B31B1B.svg)](https://arxiv.org/)
 
-> 🤖 自动爬取 arXiv 每日论文，根据你设置的关键词筛选最相关的论文，使用大模型生成中文总结，并通过邮件发送给你。
+> 每天早上打开邮箱，一份专属于你的 AI 论文速递已经准备好了。告别海量论文焦虑，只看与你研究最相关的内容。项目将自动爬取 arXiv 每日论文，根据你设置的关键词筛选最相关的论文，使用大模型生成中文总结，并通过邮件发送给你。
 
-## ✨ 功能特点
+## 功能特点
 
-- 🕷️ **每日爬取**: 自动爬取 arXiv 指定分类的最新论文
-- 🔍 **智能匹配**: 使用算法根据关键词计算相关性得分，支持关键词权重
-- 🤖 **AI 总结**: 使用大模型（DeepSeek/GPT 等）生成结构化的论文解读
-- 📧 **邮件通知**: 自动发送精美格式的论文日报邮件
-- ⏰ **GitHub Actions**: 支持定时自动运行，无需本地部署
-- 🔐 **安全配置**: 敏感信息通过环境变量/GitHub Secrets 配置
+- **每日爬取**: 自动爬取 arXiv 指定分类的最新论文
+- **智能匹配**: 使用算法根据关键词计算相关性得分，支持关键词权重
+- **AI 总结**: 使用大模型（DeepSeek/GPT 等）生成结构化的论文解读
+- **邮件通知**: 自动发送精美格式的论文日报邮件
+- **GitHub Actions**: 支持定时自动运行，无需本地部署
 
-### 📬 邮件效果示例
+### 邮件效果示例
 
 ![Demo](image/demo.png)
 
