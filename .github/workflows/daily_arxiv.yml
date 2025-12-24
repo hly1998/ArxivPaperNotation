@@ -1,10 +1,12 @@
 name: Daily arXiv Paper Notification
 
 on:
-  # 每2小时运行一次，检查是否有新论文
-  # 程序会自动跳过今天已发送过邮件的情况
+  # 定时运行（北京时间 = UTC + 8）
+  # 周一、三、四、五：北京时间 10:00 = UTC 02:00
+  # 周二：北京时间 12:00 = UTC 04:00
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 2 * * 1,3,4,5'  # 周一、三、四、五 UTC 02:00
+    - cron: '0 4 * * 2'        # 周二 UTC 04:00
   
   # 允许手动触发
   workflow_dispatch:
